@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ヘアドライヤー比較ナビ
 
-## Getting Started
+人気のヘアドライヤー10機種を、風量・重さ・価格・機能で比較できるランキングサイトです。
+実務で担当していた比較・ランキング系メディアの記事パーツを、Next.js＋TypeScriptでコンポーネントとして作り直した個人開発のポートフォリオです。
 
-First, run the development server:
+**🔗 サイトURL：** https://hair-dryer-ranking.vercel.app
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+<!-- スクリーンショットを追加する場合は、public/readme/ に画像を置いて以下のように記載 -->
+<!-- ![トップページ](public/readme/top.png) -->
+
+## 制作の目的
+
+- TypeScript・React・Next.jsの実践的な習得
+- 実務で制作していた比較表・ランキング・商品カードなどのパーツを、再利用しやすいコンポーネントとして設計し直す
+- 外部APIとの連携や、サーバー側でのデータ取得などバックエンド寄りの処理にも挑戦する
+
+## 主な機能
+
+| 機能               | 内容                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| ランキング         | 評価順に10機種を表示。順位バッジ・星評価・価格・スペック・おすすめポイント付きの商品カード |
+| 絞り込み・並び替え | イオン機能・価格・重さ・用途で絞り込み、価格順・風量順・軽い順で並び替え                   |
+| スペック比較表     | 全商品を横並びで比較。横スクロール時も項目名を固定し、各項目のNo.1を自動でハイライト       |
+| ドライヤー診断     | 3つの質問への回答からスコアを計算し、おすすめ3機種を理由付きで表示                         |
+| 商品詳細ページ     | 商品ごとの個別ページ（パンくずリスト・スペック表・関連商品）                               |
+| 商品画像           | 楽天市場商品検索APIから商品画像と商品ページURLを取得して表示                               |
+| FAQ                | `<details>` を使ったアコーディオン                                                         |
+| SEO                | ページごとのメタ情報・OGP・canonical、構造化データ（ItemList／FAQPage／BreadcrumbList）    |
+
+## 使用技術
+
+- **フレームワーク**：Next.js 16（App Router）
+- **言語**：TypeScript
+- **スタイリング**：Tailwind CSS v4
+- **外部API**：楽天市場商品検索API（楽天ウェブサービス）
+- **ホスティング**：Vercel（GitHub連携による自動デプロイ）
+
+## 工夫した点
+
+### 型で書き漏れ・入力ミスを防ぐ設計
+
+- 商品データの構造を `HairDryer` 型で定義し、用途は `"quickDry" | "damageCare" | ...` のように決まった値だけを許可
+- 用途の日本語ラベルや並び替えの処理を `Record<UseCase, string>` の形で管理し、選択肢を追加したときに対応漏れがあると型エラーで気付けるようにしました
+
+### 設定を変えるだけで拡張できるコンポーネント
+
+- 比較表は「行の設定（項目名・表示内容・No.1の判定ルール）」の配列から生成しており、項目の追加や並び替えは設定を1行変えるだけで対応できます
+- 診断の質問・選択肢も配列で管理し、おすすめの計算ロジック（`lib/recommend.ts`）と画面（`DryerQuiz.tsx`）を分離しています
+
+### サーバーとクライアントの役割分担
+
+- 楽天APIはサーバー側でのみ呼び出し、APIキーはブラウザに渡さない構成にしています
+- 絞り込みや診断など操作に反応する部分だけを Client Component（`"use client"`）にし、それ以外は Server Component で表示しています
+
+### 外部APIの安定した利用
+
+- `"use cache"` と `cacheLife` で取得結果をキャッシュし、APIの呼び出しを1日1回に抑えています
+- 利用制限（1秒あたりのリクエスト数）に合わせた間隔の調整と、429エラー時の再試行処理を実装
+- 画像が取得できなかった場合は、SVGのイラストを代わりに表示します
+
+### 表示速度とSEO
+
+- 商品詳細ページは `generateStaticParams` でビルド時に静的生成
+- 画像は `next/image` で自動的に最適化
+- 実務経験をもとに、メタ情報・OGP・構造化データを各ページに設定
+
+## ディレクトリ構成
+
+```
+src/
+├── app/
+│   ├── layout.tsx              # 全ページ共通のレイアウト・メタ情報
+│   ├── page.tsx                # トップページ
+│   └── products/[id]/page.tsx  # 商品詳細ページ
+├── components/                 # UIコンポーネント（商品カード・比較表・診断など）
+├── data/                       # 商品データ（JSON）・FAQデータ
+├── lib/                        # データ取得・楽天API連携・診断ロジック・構造化データ
+└── types/                      # 型定義
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 掲載データについて
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- 価格は2026年10月時点の参考価格、スペックはメーカー公称値です
+- 評価・おすすめポイントは当サイト独自のものです
+- 商品画像は楽天ウェブサービスのAPIを利用して取得しています
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ローカル環境での起動方法
 
-## Learn More
+```bash
+# リポジトリをクローン
+git clone https://github.com/AsukaMii/hair-dryer-ranking.git
+cd hair-dryer-ranking
 
-To learn more about Next.js, take a look at the following resources:
+# パッケージをインストール
+npm install
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# 開発サーバーを起動
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+楽天APIから画像を取得する場合は、プロジェクト直下に `.env.local` を作成し、楽天ウェブサービスで発行したアプリIDとアクセスキーを設定してください（未設定の場合はイラストが表示されます）。
 
-## Deploy on Vercel
+```bash
+RAKUTEN_APPLICATION_ID=あなたのアプリID
+RAKUTEN_ACCESS_KEY=あなたのアクセスキー
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 今後の改善予定
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 気になる商品だけを選んで比較できる機能
+- 絞り込み条件をURLに反映し、条件付きでシェアできるようにする
+- スクロールに合わせたアニメーション演出
+
+---
+
+Supported by [Rakuten Developers](https://webservice.rakuten.co.jp/)
