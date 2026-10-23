@@ -90,7 +90,8 @@ async function searchItem(keyword: string): Promise<RakutenItem | null> {
     const res = await fetchWithRetry(`${API_URL}?${params}`);
 
     if (!res.ok) {
-      console.error(`楽天APIエラー（${keyword}）：${res.status}`);
+      // エラーの内容もログに出す（原因を調べやすくするため）
+      console.error(`楽天APIエラー（${keyword}）：${res.status}`, await res.text());
       return null;
     }
 
@@ -119,6 +120,11 @@ export async function getRakutenItemMap(): Promise<RakutenItemMap> {
   "use cache";
   cacheLife("days");
 
+  // 環境変数が読み込めているかをログに出す（値そのものは出さない）
+  console.log(
+    `楽天API：環境変数 アプリID=${process.env.RAKUTEN_APPLICATION_ID ? "あり" : "なし"}／アクセスキー=${process.env.RAKUTEN_ACCESS_KEY ? "あり" : "なし"}`
+  );
+
   const map: RakutenItemMap = {};
 
   for (const dryer of hairDryers) {
@@ -128,6 +134,10 @@ export async function getRakutenItemMap(): Promise<RakutenItemMap> {
     // 楽天APIの利用制限（1秒に1回程度）を守るため、1件ごとに少し待つ
     await wait(1100);
   }
+
+  // 何件取得できたかをログに出す
+  const successCount = Object.values(map).filter((item) => item !== null).length;
+  console.log(`楽天API：${hairDryers.length}件中 ${successCount}件の画像を取得しました`);
 
   return map;
 }
