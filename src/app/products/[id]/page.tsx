@@ -5,18 +5,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRankedHairDryers, getHairDryerById } from "@/lib/hairdryers";
+import { getRakutenItemMap } from "@/lib/rakuten";
 import { buildBreadcrumbJsonLd } from "@/lib/structuredData";
 import { useCaseLabels } from "@/lib/labels";
-import { getDryerColor } from "@/lib/dryerColors";
 import { siteConfig } from "@/lib/site";
 import StarRating from "@/components/StarRating";
-import DryerIllustration from "@/components/DryerIllustration";
+import ProductImage from "@/components/ProductImage";
 import JsonLd from "@/components/JsonLd";
 
 // このページが受け取る値の型（URLの[id]部分がparams.idに入る）
 type Props = {
   params: Promise<{ id: string }>;
 };
+
+// URLの値（params）を使うページなので、表示内容が揃うまで待ってから表示する設定
+// （全ページgenerateStaticParamsで事前に作られるため、表示速度への影響はほぼない）
+export const instant = false;
 
 // ビルド時に作成するページの一覧（商品IDの数だけページが作られる）
 export function generateStaticParams() {
@@ -64,6 +68,10 @@ export default async function ProductPage({ params }: Props) {
   const dryer = ranked[index];
   const rank = index + 1;
 
+  // 楽天の商品画像・商品ページURL（トップページと同じキャッシュを使う）
+  const rakutenItems = await getRakutenItemMap();
+  const rakutenItem = rakutenItems[dryer.id];
+
   // 表示するスペックの一覧
   const specs = [
     { label: "風量", value: `${dryer.airflow}m³/分` },
@@ -107,13 +115,15 @@ export default async function ProductPage({ params }: Props) {
       {/* 商品の基本情報 */}
       <section className="mb-10 rounded-2xl border border-pink-100 bg-white p-6">
         <div className="flex flex-col gap-6 sm:flex-row">
-          {/* イラスト */}
-          <div className="flex aspect-square w-full shrink-0 items-center justify-center rounded-xl bg-pink-50 p-8 sm:w-56 sm:p-4">
-            <DryerIllustration
-              color={getDryerColor(dryer.id)}
-              label={`${dryer.brand} ${dryer.name}のイメージイラスト`}
-              className="h-full w-full max-w-56"
-            />
+          {/* 商品画像（楽天の画像は楽天市場の商品ページにリンクする） */}
+          <div className="mx-auto flex aspect-square w-full max-w-72 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-4 ring-1 ring-pink-100 sm:w-56">
+            {rakutenItem ? (
+              <a href={rakutenItem.itemUrl} target="_blank" rel="noopener noreferrer" className="block h-full w-full">
+                <ProductImage dryer={dryer} rakutenItem={rakutenItem} sizes="(min-width: 640px) 224px, 288px" />
+              </a>
+            ) : (
+              <ProductImage dryer={dryer} />
+            )}
           </div>
 
           <div className="flex-1">
@@ -143,6 +153,18 @@ export default async function ProductPage({ params }: Props) {
                 </li>
               ))}
             </ul>
+
+            {/* 楽天市場へのリンク（商品情報が取得できた場合だけ表示） */}
+            {rakutenItem && (
+              <a
+                href={rakutenItem.itemUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-block rounded-full bg-pink-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-pink-600"
+              >
+                楽天市場で見る
+              </a>
+            )}
           </div>
         </div>
       </section>
@@ -185,12 +207,8 @@ export default async function ProductPage({ params }: Props) {
                   href={`/products/${item.id}`}
                   className="block rounded-2xl border border-pink-100 bg-white p-4 transition hover:border-pink-300 hover:shadow"
                 >
-                  <div className="mb-3 flex aspect-square items-center justify-center rounded-xl bg-pink-50 p-4">
-                    <DryerIllustration
-                      color={getDryerColor(item.id)}
-                      label={`${item.brand} ${item.name}のイメージイラスト`}
-                      className="h-full w-full"
-                    />
+                  <div className="mb-3 flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-white p-2 ring-1 ring-pink-100">
+                    <ProductImage dryer={item} rakutenItem={rakutenItems[item.id]} sizes="(min-width: 640px) 200px, 100vw" />
                   </div>
                   <p className="text-xs text-gray-500">{item.brand}</p>
                   <p className="text-sm font-bold text-gray-800">{item.name}</p>

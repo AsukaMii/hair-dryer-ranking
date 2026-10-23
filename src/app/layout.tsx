@@ -37,8 +37,10 @@ export const metadata: Metadata = {
 // children：各ページ（page.tsx）の中身がここに入る
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    // lang="ja"で日本語ページであることを指定、scroll-smoothでアンカーリンクをなめらかにスクロール
-    <html lang="ja" className="scroll-smooth">
+    // lang="ja"：日本語ページであることを指定
+    // scroll-smooth：アンカーリンクをなめらかにスクロール
+    // data-scroll-behavior="smooth"：ページ移動のときはなめらかスクロールを無効にするよう、Next.jsに伝える
+    <html lang="ja" className="scroll-smooth" data-scroll-behavior="smooth">
       <body className={`${notoSansJp.className} antialiased`}>
         <Header />
         {children}

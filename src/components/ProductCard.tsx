@@ -1,17 +1,18 @@
 // src/components/ProductCard.tsx
-// ランキング用の商品カード（順位・イラスト・評価・価格・スペック・おすすめポイント・詳細リンク）
+// ランキング用の商品カード（順位・画像・評価・価格・スペック・おすすめポイント・リンク）
 
 import Link from "next/link";
 import type { HairDryer } from "@/types/hairdryer";
+import type { RakutenItem } from "@/lib/rakuten";
 import StarRating from "@/components/StarRating";
-import DryerIllustration from "@/components/DryerIllustration";
+import ProductImage from "@/components/ProductImage";
 import { useCaseLabels } from "@/lib/labels"; // 用途ラベルは共通ファイルから読み込む
-import { getDryerColor } from "@/lib/dryerColors"; // 商品ごとのイラストの色
 
 // この部品が受け取る値（props）の型
 type Props = {
-  dryer: HairDryer; // 商品データ1件
-  rank: number;     // 順位
+  dryer: HairDryer;                 // 商品データ1件
+  rank: number;                     // 順位
+  rakutenItem?: RakutenItem | null; // 楽天の商品情報（ない場合もある）
 };
 
 // 順位に応じたバッジの色（1〜3位は金・銀・銅、それ以外はグレー）
@@ -22,7 +23,7 @@ function getBadgeColor(rank: number): string {
   return "bg-gray-500";
 }
 
-export default function ProductCard({ dryer, rank }: Props) {
+export default function ProductCard({ dryer, rank, rakutenItem }: Props) {
   // 詳細ページのURL
   const detailUrl = `/products/${dryer.id}`;
 
@@ -30,19 +31,21 @@ export default function ProductCard({ dryer, rank }: Props) {
     <article className="relative rounded-2xl border border-pink-100 bg-white p-5 shadow-sm">
       {/* 順位バッジ */}
       <span
-        className={`absolute -top-3 -left-3 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white shadow ${getBadgeColor(rank)}`}
+        className={`absolute -top-3 -left-3 z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white shadow ${getBadgeColor(rank)}`}
       >
         {rank}位
       </span>
 
       <div className="flex flex-col gap-4 sm:flex-row">
-        {/* 商品イラスト（商品ごとに色が変わる） */}
-        <div className="flex aspect-square w-full shrink-0 items-center justify-center rounded-xl bg-pink-50 p-6 sm:w-40 sm:p-3">
-          <DryerIllustration
-            color={getDryerColor(dryer.id)}
-            label={`${dryer.brand} ${dryer.name}のイメージイラスト`}
-            className="h-full w-full max-w-48"
-          />
+        {/* 商品画像（楽天の画像は楽天市場の商品ページにリンクする） */}
+        <div className="mx-auto flex aspect-square w-full max-w-60 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-3 ring-1 ring-pink-100 sm:w-40">
+          {rakutenItem ? (
+            <a href={rakutenItem.itemUrl} target="_blank" rel="noopener noreferrer" className="block h-full w-full">
+              <ProductImage dryer={dryer} rakutenItem={rakutenItem} sizes="(min-width: 640px) 160px, 240px" />
+            </a>
+          ) : (
+            <ProductImage dryer={dryer} />
+          )}
         </div>
 
         <div className="flex-1">
@@ -106,13 +109,25 @@ export default function ProductCard({ dryer, rank }: Props) {
         </ul>
       </div>
 
-      {/* 詳細ページへのボタン */}
-      <Link
-        href={detailUrl}
-        className="mt-4 block rounded-full bg-pink-500 py-3 text-center text-sm font-bold text-white transition hover:bg-pink-600"
-      >
-        詳細を見る →
-      </Link>
+      {/* ボタン（楽天の商品がある場合は2つ並べる） */}
+      <div className={`mt-4 grid gap-2 ${rakutenItem ? "sm:grid-cols-2" : ""}`}>
+        <Link
+          href={detailUrl}
+          className="block rounded-full bg-pink-500 py-3 text-center text-sm font-bold text-white transition hover:bg-pink-600"
+        >
+          詳細を見る →
+        </Link>
+        {rakutenItem && (
+          <a
+            href={rakutenItem.itemUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block rounded-full border border-pink-500 py-3 text-center text-sm font-bold text-pink-600 transition hover:bg-pink-50"
+          >
+            楽天市場で見る
+          </a>
+        )}
+      </div>
     </article>
   );
 }

@@ -6,12 +6,14 @@
 
 import { useState } from "react";
 import type { HairDryer, UseCase } from "@/types/hairdryer";
+import type { RakutenItemMap } from "@/lib/rakuten";
 import ProductCard from "@/components/ProductCard";
 import { useCaseLabels } from "@/lib/labels";
 
 // この部品が受け取る値（props）の型
 type Props = {
-  dryers: HairDryer[]; // おすすめ順（順位順）に並んだ商品の配列
+  dryers: HairDryer[];          // おすすめ順（順位順）に並んだ商品の配列
+  rakutenItems: RakutenItemMap; // 商品IDごとの楽天の商品情報
 };
 
 // 並び替えの種類（決まった値だけを許可する）
@@ -63,7 +65,7 @@ function FilterCheckbox({ label, checked, onChange }: FilterCheckboxProps) {
   );
 }
 
-export default function RankingSection({ dryers }: Props) {
+export default function RankingSection({ dryers, rakutenItems }: Props) {
   // 絞り込み・並び替えの状態（値が変わると画面が自動で再表示される）
   const [ionOnly, setIonOnly] = useState(false);      // イオン機能あり
   const [under10k, setUnder10k] = useState(false);    // 1万円以下
@@ -153,7 +155,7 @@ export default function RankingSection({ dryers }: Props) {
       {items.length > 0 ? (
         <div className="space-y-8">
           {items.map(({ dryer, rank }) => (
-            <ProductCard key={dryer.id} dryer={dryer} rank={rank} />
+            <ProductCard key={dryer.id} dryer={dryer} rank={rank} rakutenItem={rakutenItems[dryer.id]} />
           ))}
         </div>
       ) : (

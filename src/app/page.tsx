@@ -3,6 +3,7 @@
 
 import type { Metadata } from "next";
 import { getRankedHairDryers } from "@/lib/hairdryers";
+import { getRakutenItemMap } from "@/lib/rakuten";
 import { faqItems } from "@/data/faq";
 import { buildItemListJsonLd, buildFaqJsonLd } from "@/lib/structuredData";
 import TableOfContents from "@/components/TableOfContents";
@@ -38,9 +39,13 @@ const guidePoints = [
   { title: "機能で選ぶ", text: "マイナスイオンや自動温度調節など、重視したい機能で絞り込むのがおすすめです。" },
 ];
 
-export default function Home() {
+// 楽天APIからデータを取得するため、async（非同期）関数にする
+export default async function Home() {
   // ランキング順（評価の高い順）の商品一覧
   const ranked = getRankedHairDryers();
+
+  // 楽天の商品画像・商品ページURL（サーバー側で取得し、キャッシュされる）
+  const rakutenItems = await getRakutenItemMap();
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
@@ -84,7 +89,7 @@ export default function Home() {
       {/* ランキング（絞り込み・並び替えはRankingSectionの中で行う） */}
       <section id="ranking" className="mb-16 scroll-mt-20">
         <h2 className="mb-6 text-xl font-bold text-gray-800">おすすめランキングTOP10</h2>
-        <RankingSection dryers={ranked} />
+        <RankingSection dryers={ranked} rakutenItems={rakutenItems} />
       </section>
 
       {/* 比較表（絞り込みに関係なく全商品を表示） */}
