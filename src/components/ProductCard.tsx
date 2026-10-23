@@ -1,6 +1,7 @@
 // src/components/ProductCard.tsx
-// ランキング用の商品カード（順位・イラスト・評価・価格・スペック・おすすめポイント）
+// ランキング用の商品カード（順位・イラスト・評価・価格・スペック・おすすめポイント・詳細リンク）
 
+import Link from "next/link";
 import type { HairDryer } from "@/types/hairdryer";
 import StarRating from "@/components/StarRating";
 import DryerIllustration from "@/components/DryerIllustration";
@@ -22,6 +23,9 @@ function getBadgeColor(rank: number): string {
 }
 
 export default function ProductCard({ dryer, rank }: Props) {
+  // 詳細ページのURL
+  const detailUrl = `/products/${dryer.id}`;
+
   return (
     <article className="relative rounded-2xl border border-pink-100 bg-white p-5 shadow-sm">
       {/* 順位バッジ */}
@@ -42,9 +46,13 @@ export default function ProductCard({ dryer, rank }: Props) {
         </div>
 
         <div className="flex-1">
-          {/* メーカー名・商品名 */}
+          {/* メーカー名・商品名（商品名は詳細ページへのリンク） */}
           <p className="text-xs text-gray-500">{dryer.brand}</p>
-          <h3 className="text-lg font-bold text-gray-800">{dryer.name}</h3>
+          <h3 className="text-lg font-bold text-gray-800">
+            <Link href={detailUrl} className="hover:text-pink-600 hover:underline">
+              {dryer.name}
+            </Link>
+          </h3>
 
           {/* 星評価 */}
           <div className="mt-1">
@@ -97,6 +105,14 @@ export default function ProductCard({ dryer, rank }: Props) {
           ))}
         </ul>
       </div>
+
+      {/* 詳細ページへのボタン */}
+      <Link
+        href={detailUrl}
+        className="mt-4 block rounded-full bg-pink-500 py-3 text-center text-sm font-bold text-white transition hover:bg-pink-600"
+      >
+        詳細を見る →
+      </Link>
     </article>
   );
 }
