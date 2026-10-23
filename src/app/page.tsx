@@ -1,11 +1,12 @@
 // src/app/page.tsx
-// トップページ（導入文・目次・選び方・ランキング・比較表・FAQ・構造化データ）
+// トップページ（導入文・目次・選び方・診断・ランキング・比較表・FAQ・構造化データ）
 
 import type { Metadata } from "next";
-import { hairDryers } from "@/lib/hairdryers";
+import { getRankedHairDryers } from "@/lib/hairdryers";
 import { faqItems } from "@/data/faq";
 import { buildItemListJsonLd, buildFaqJsonLd } from "@/lib/structuredData";
 import TableOfContents from "@/components/TableOfContents";
+import DryerQuiz from "@/components/DryerQuiz";
 import RankingSection from "@/components/RankingSection";
 import ComparisonTable from "@/components/ComparisonTable";
 import Faq from "@/components/Faq";
@@ -24,6 +25,7 @@ const dataDate = "2026年10月";
 // 目次の項目（idは下の各sectionのidと合わせる）
 const tocItems = [
   { id: "point", label: "ヘアドライヤーの選び方" },
+  { id: "quiz", label: "ドライヤー診断" },
   { id: "ranking", label: "おすすめランキングTOP10" },
   { id: "comparison", label: "スペック比較表" },
   { id: "faq", label: "よくある質問" },
@@ -37,8 +39,8 @@ const guidePoints = [
 ];
 
 export default function Home() {
-  // 評価の高い順に並べ替え（元の配列を変更しないよう [...] でコピーしてからsort）
-  const ranked = [...hairDryers].sort((a, b) => b.rating - a.rating);
+  // ランキング順（評価の高い順）の商品一覧
+  const ranked = getRankedHairDryers();
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
@@ -49,7 +51,7 @@ export default function Home() {
       {/* タイトル・導入文 */}
       <h1 className="mb-4 text-2xl font-bold text-gray-800">ヘアドライヤーおすすめランキング</h1>
       <p className="mb-2 leading-relaxed text-gray-700">
-        人気のヘアドライヤー{hairDryers.length}機種を、風量・重さ・価格・機能で比較しました。用途や条件で絞り込んで、自分にぴったりの1台を見つけてください。
+        人気のヘアドライヤー{ranked.length}機種を、風量・重さ・価格・機能で比較しました。用途や条件で絞り込んで、自分にぴったりの1台を見つけてください。
       </p>
       <p className="mb-8 text-xs text-gray-500">
         ※価格は{dataDate}時点の参考価格、スペックはメーカー公称値です。評価は当サイト独自のものです。
@@ -70,6 +72,13 @@ export default function Home() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* ドライヤー診断 */}
+      <section id="quiz" className="mb-16 scroll-mt-20">
+        <h2 className="mb-2 text-xl font-bold text-gray-800">ドライヤー診断</h2>
+        <p className="mb-6 text-sm text-gray-600">3つの質問に答えるだけで、あなたに合うドライヤーが見つかります。</p>
+        <DryerQuiz dryers={ranked} />
       </section>
 
       {/* ランキング（絞り込み・並び替えはRankingSectionの中で行う） */}

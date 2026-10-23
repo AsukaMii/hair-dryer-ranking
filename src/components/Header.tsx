@@ -5,6 +5,7 @@ import Link from "next/link";
 
 // ナビゲーションの項目（どのページからでもトップの各セクションに移動できるよう「/#」を付ける）
 const navItems = [
+  { href: "/#quiz", label: "診断" },
   { href: "/#ranking", label: "ランキング" },
   { href: "/#comparison", label: "比較表" },
   { href: "/#faq", label: "よくある質問" },
