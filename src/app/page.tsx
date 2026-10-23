@@ -1,12 +1,22 @@
 // src/app/page.tsx
-// トップページ（導入文・目次・選び方・ランキング・比較表・FAQ）
+// トップページ（導入文・目次・選び方・ランキング・比較表・FAQ・構造化データ）
 
+import type { Metadata } from "next";
 import { hairDryers } from "@/lib/hairdryers";
 import { faqItems } from "@/data/faq";
+import { buildItemListJsonLd, buildFaqJsonLd } from "@/lib/structuredData";
 import TableOfContents from "@/components/TableOfContents";
 import RankingSection from "@/components/RankingSection";
 import ComparisonTable from "@/components/ComparisonTable";
 import Faq from "@/components/Faq";
+import JsonLd from "@/components/JsonLd";
+
+// このページだけのメタ情報（layout.tsxの設定に上書き・追加される）
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/", // 正規URL（metadataBaseと組み合わせて完全なURLになる）
+  },
+};
 
 // 目次の項目（idは下の各sectionのidと合わせる）
 const tocItems = [
@@ -29,6 +39,10 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
+      {/* 構造化データ（画面には表示されない） */}
+      <JsonLd data={buildItemListJsonLd(ranked)} />
+      <JsonLd data={buildFaqJsonLd(faqItems)} />
+
       {/* タイトル・導入文 */}
       <h1 className="mb-4 text-2xl font-bold text-gray-800">ヘアドライヤーおすすめランキング</h1>
       <p className="mb-8 leading-relaxed text-gray-700">
