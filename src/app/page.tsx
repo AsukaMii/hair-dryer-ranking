@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   },
 };
 
+// 価格・スペックの調査時点
+const dataDate = "2026年10月";
+
 // 目次の項目（idは下の各sectionのidと合わせる）
 const tocItems = [
   { id: "point", label: "ヘアドライヤーの選び方" },
@@ -28,9 +31,9 @@ const tocItems = [
 
 // 選び方のポイント
 const guidePoints = [
-  { title: "風量で選ぶ", text: "乾かす時間を短くしたいなら、風量2.0m³/分以上のモデルが目安です。" },
+  { title: "風量で選ぶ", text: "乾かす時間を短くしたいなら、風量の多いモデルが目安です。ただし測定方法はメーカーごとに異なります。" },
   { title: "重さで選ぶ", text: "毎日使うなら、腕が疲れにくい500g以下の軽量モデルもチェックしましょう。" },
-  { title: "機能で選ぶ", text: "イオン機能・頭皮ケアモード・折りたたみなど、重視したい機能で絞り込むのがおすすめです。" },
+  { title: "機能で選ぶ", text: "マイナスイオンや自動温度調節など、重視したい機能で絞り込むのがおすすめです。" },
 ];
 
 export default function Home() {
@@ -45,8 +48,11 @@ export default function Home() {
 
       {/* タイトル・導入文 */}
       <h1 className="mb-4 text-2xl font-bold text-gray-800">ヘアドライヤーおすすめランキング</h1>
-      <p className="mb-8 leading-relaxed text-gray-700">
-        ヘアドライヤー{hairDryers.length}機種を、風量・重さ・価格・機能で比較しました。用途や条件で絞り込んで、自分にぴったりの1台を見つけてください。
+      <p className="mb-2 leading-relaxed text-gray-700">
+        人気のヘアドライヤー{hairDryers.length}機種を、風量・重さ・価格・機能で比較しました。用途や条件で絞り込んで、自分にぴったりの1台を見つけてください。
+      </p>
+      <p className="mb-8 text-xs text-gray-500">
+        ※価格は{dataDate}時点の参考価格、スペックはメーカー公称値です。評価は当サイト独自のものです。
       </p>
 
       {/* 目次 */}
@@ -76,6 +82,9 @@ export default function Home() {
       <section id="comparison" className="mb-16 scroll-mt-20">
         <h2 className="mb-6 text-xl font-bold text-gray-800">スペック比較表</h2>
         <ComparisonTable dryers={ranked} />
+        <p className="mt-3 text-xs text-gray-500">
+          ※風量はメーカー公称値です。測定方法がメーカーごとに異なるため、目安としてご覧ください。
+        </p>
       </section>
 
       {/* よくある質問 */}

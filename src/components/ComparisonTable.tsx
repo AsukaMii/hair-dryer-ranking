@@ -33,16 +33,16 @@ const rows: Row[] = [
     ),
   },
   {
-    label: "価格",
+    label: "参考価格",
     render: (dryer) => <span className="font-bold text-pink-600">{dryer.price.toLocaleString()}円</span>,
   },
   { label: "風量", render: (dryer) => `${dryer.airflow}m³/分` },
+  // 温風温度は非公表（null）の場合があるので「－」を表示する
+  { label: "温風温度", render: (dryer) => (dryer.maxTempC !== null ? `${dryer.maxTempC}℃` : "－") },
   { label: "消費電力", render: (dryer) => `${dryer.watts}W` },
   { label: "重さ", render: (dryer) => `${dryer.weightGrams}g` },
-  { label: "温度設定", render: (dryer) => `${dryer.tempModes}段階` },
-  { label: "イオン機能", render: (dryer) => mark(dryer.hasIon) },
-  { label: "頭皮ケアモード", render: (dryer) => mark(dryer.hasScalpMode) },
-  { label: "折りたたみ", render: (dryer) => mark(dryer.isFoldable) },
+  { label: "マイナスイオン", render: (dryer) => mark(dryer.hasIon) },
+  { label: "自動温度調節", render: (dryer) => mark(dryer.hasAutoTemp) },
 ];
 
 export default function ComparisonTable({ dryers }: Props) {

@@ -1,9 +1,11 @@
 // src/components/ProductCard.tsx
-// ランキング用の商品カード（順位・画像・評価・価格・スペック・おすすめポイント）
+// ランキング用の商品カード（順位・イラスト・評価・価格・スペック・おすすめポイント）
 
 import type { HairDryer } from "@/types/hairdryer";
 import StarRating from "@/components/StarRating";
+import DryerIllustration from "@/components/DryerIllustration";
 import { useCaseLabels } from "@/lib/labels"; // 用途ラベルは共通ファイルから読み込む
+import { getDryerColor } from "@/lib/dryerColors"; // 商品ごとのイラストの色
 
 // この部品が受け取る値（props）の型
 type Props = {
@@ -30,9 +32,13 @@ export default function ProductCard({ dryer, rank }: Props) {
       </span>
 
       <div className="flex flex-col gap-4 sm:flex-row">
-        {/* 商品画像（画像はまだないので仮のボックスを表示） */}
-        <div className="flex aspect-square w-full shrink-0 items-center justify-center rounded-xl bg-pink-50 text-sm text-pink-300 sm:w-40">
-          No Image
+        {/* 商品イラスト（商品ごとに色が変わる） */}
+        <div className="flex aspect-square w-full shrink-0 items-center justify-center rounded-xl bg-pink-50 p-6 sm:w-40 sm:p-3">
+          <DryerIllustration
+            color={getDryerColor(dryer.id)}
+            label={`${dryer.brand} ${dryer.name}のイメージイラスト`}
+            className="h-full w-full max-w-48"
+          />
         </div>
 
         <div className="flex-1">
