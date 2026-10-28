@@ -7,13 +7,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { HairDryer } from "@/types/hairdryer";
+import type { RakutenItemMap } from "@/lib/rakuten";
 import { recommendDryers, type QuizAnswers } from "@/lib/recommend";
-import { getDryerColor } from "@/lib/dryerColors";
-import DryerIllustration from "@/components/DryerIllustration";
+import ProductImage from "@/components/ProductImage";
 
 // この部品が受け取る値（props）の型
 type Props = {
   dryers: HairDryer[];
+  rakutenItems: RakutenItemMap; // 商品IDごとの楽天の商品情報（画像の表示に使う）
 };
 
 // 質問1問分の型（keyは回答を保存する項目名）
@@ -55,7 +56,7 @@ const questions: Question[] = [
   },
 ];
 
-export default function DryerQuiz({ dryers }: Props) {
+export default function DryerQuiz({ dryers, rakutenItems }: Props) {
   // 今表示している質問の番号（0から始まる）
   const [step, setStep] = useState(0);
   // これまでの回答（まだ答えていない項目は入っていない）
@@ -145,13 +146,9 @@ export default function DryerQuiz({ dryers }: Props) {
                   {/* おすすめ順位 */}
                   <p className="mb-2 text-xs font-bold text-pink-500">おすすめ{index + 1}位</p>
 
-                  {/* イラスト */}
-                  <div className="mb-3 flex aspect-square items-center justify-center rounded-xl bg-pink-50 p-4">
-                    <DryerIllustration
-                      color={getDryerColor(dryer.id)}
-                      label={`${dryer.brand} ${dryer.name}のイメージイラスト`}
-                      className="h-full w-full"
-                    />
+                  {/* 商品画像（楽天の画像があれば写真、なければイラスト） */}
+                  <div className="mb-3 flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-white p-2 ring-1 ring-pink-100">
+                    <ProductImage dryer={dryer} rakutenItem={rakutenItems[dryer.id]} sizes="(min-width: 640px) 200px, 100vw" />
                   </div>
 
                   {/* 商品名・価格 */}

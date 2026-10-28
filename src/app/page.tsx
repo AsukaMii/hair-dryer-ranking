@@ -83,7 +83,7 @@ export default async function Home() {
       <section id="quiz" className="mb-16 scroll-mt-20">
         <h2 className="mb-2 text-xl font-bold text-gray-800">ドライヤー診断</h2>
         <p className="mb-6 text-sm text-gray-600">3つの質問に答えるだけで、あなたに合うドライヤーが見つかります。</p>
-        <DryerQuiz dryers={ranked} />
+        <DryerQuiz dryers={ranked} rakutenItems={rakutenItems} />
       </section>
 
       {/* ランキング（絞り込み・並び替えはRankingSectionの中で行う） */}
